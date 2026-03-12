@@ -1,0 +1,28 @@
+{
+    "id": "65F938AD",
+    "path": "~/Documents/Projects/bimm143/class04/class04.R",
+    "project_path": "class04.R",
+    "type": "r_source",
+    "hash": "278256525",
+    "contents": "",
+    "dirty": false,
+    "created": 1768509102751.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "8,0",
+        "scrollLine": "0",
+        "notebook_format": "pdf_document"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1768509150,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1768509150893,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,8 @@
+"0","ggplot(cdc) +"
+"0","  aes(Year, Cases) +"
+"0","  geom_point() +"
+"0","  geom_line() +"
+"0","  geom_vline(xintercept = 1946, col = ""blue"", lty = 2) +"
+"0","  geom_vline(xintercept = 1996, col = ""red"", lty = 2) +"
+"0","  geom_vline(xintercept = 2020, col = ""gray"", lty = 2) +"
+"0","  labs(x=""Year"", y=""Cases"")"

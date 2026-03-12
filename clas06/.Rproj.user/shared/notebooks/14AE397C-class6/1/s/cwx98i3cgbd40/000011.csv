@@ -1,0 +1,4 @@
+"0","generate_dna <- function(length) {"
+"0","  nuc <- c(""A"", ""T"", ""G"", ""C"")"
+"0","  sample(nuc, size = length, replace = TRUE)"
+"0","}"

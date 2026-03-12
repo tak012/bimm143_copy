@@ -1,0 +1,45 @@
+---
+title: "Homework 6: R Functions"
+author: "Daniel Kim"
+format: pdf
+---
+
+```{r}
+library(bio3d)
+```
+
+```{r}
+s1 <- read.pdb("4AKE") # kinase with drug
+s2 <- read.pdb("1AKE") # kinase no drug
+s3 <- read.pdb("1E4Y") # kinase with drug
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s2.chainA <- trim.pdb(s2, chain="A", elety="CA")
+s3.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s1.b <- s1.chainA$atom$b
+s2.b <- s2.chainA$atom$b
+s3.b <- s3.chainA$atom$b
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor")
+```
+```{r}
+#the function takes in the pdb_id as well as a default chain = A arguments
+#the function takes in the arguments and plots the bfactors against the trimmed in a line graph
+analyze_pdb <- function(pdb_id, chain="A") {
+  #reads pdb file from the id
+  pdb <- read.pdb(pdb_id)
+  #performs the trim operation with the chain as A and elety as CA
+  trimmed <- trim.pdb(pdb, chain=chain, elety="CA")
+  #extracts bfactors
+  bfactors <- trimmed$atom$b
+  #plots bfactors against trimmed, using line graph
+  plotb3(bfactors, sse=trimmed, typ="l", ylab="Bfactor")
+  #the function returns a numeric vector bfactors
+  return (bfactors)
+}
+
+analyze_pdb("4AKE")
+analyze_pdb("1AKE")
+analyze_pdb("1E4Y")
+```
+

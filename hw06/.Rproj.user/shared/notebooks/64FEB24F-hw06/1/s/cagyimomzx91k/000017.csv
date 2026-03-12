@@ -1,0 +1,10 @@
+"0","analyze_pdb <- function(pdb_id, chain=""A"") {"
+"0","  pdb <- read.pdb(pdb_id)"
+"0","  trimmed <- trim.pdb(pdb, chain=chain, elety=""CA"")"
+"0","  bfactors <- trimmed$atom$b"
+"0","  plotb3(bfactors, sse=trimmed, typ=""l"", ylab=""Bfactor"")"
+"0","}"
+"0",""
+"0","analyze_pdb(""4AKE"")"
+"1","  Note: Accessing on-line PDB file
+"

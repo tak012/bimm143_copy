@@ -1,0 +1,2 @@
+"0","library(ggplot2)"
+"0","ggplot(candy, aes(x = winpercent)) + geom_histogram(bins = 10)"

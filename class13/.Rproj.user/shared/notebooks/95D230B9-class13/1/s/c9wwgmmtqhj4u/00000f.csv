@@ -1,0 +1,4 @@
+"0","meancounts <- data.grame(control.mean, treated.mean)"
+"2","Error in data.grame(control.mean, treated.mean) : 
+  could not find function ""data.grame""
+"

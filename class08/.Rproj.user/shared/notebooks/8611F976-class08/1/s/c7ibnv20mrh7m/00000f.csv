@@ -1,0 +1,1 @@
+"0","wisc.pr.hclust.clusters <- cutree(wisc.pr.hclust, k=2)"

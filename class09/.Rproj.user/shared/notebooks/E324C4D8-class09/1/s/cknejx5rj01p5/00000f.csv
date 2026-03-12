@@ -1,0 +1,1 @@
+"0","my_data <- cbind(candy, pca$x[,1:3])"

@@ -1,0 +1,2 @@
+"0","foldchanges <- res$log2FoldChange"
+"0","names(foldchanges) <- res$entrez"

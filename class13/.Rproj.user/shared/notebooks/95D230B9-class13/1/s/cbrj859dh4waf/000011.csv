@@ -1,0 +1,4 @@
+"0","write.csv(res[ord,], ""deseq_results.csv"")"
+"2","Error in h(simpleError(msg, call)) : 
+  error in evaluating the argument 'i' in selecting a method for function '[': object 'ord' not found
+"

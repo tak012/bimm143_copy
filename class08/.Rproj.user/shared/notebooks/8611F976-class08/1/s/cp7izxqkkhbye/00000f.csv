@@ -1,0 +1,7 @@
+"0","column_names = colnames(wisc.data)"
+"0",""
+"0","sum(grepl(""_mean"", column_names))"
+"1","[1]"
+"1"," 10"
+"1","
+"

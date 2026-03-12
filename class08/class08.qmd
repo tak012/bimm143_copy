@@ -1,0 +1,213 @@
+---
+title: "Class 8: Mini-Project"
+author: "Daniel Kim"
+format: pdf
+---
+
+```{r}
+fna.data <- read.csv("WisconsinCancer.csv")
+
+wisc.df <- data.frame(fna.data, row.names=1)
+head(wisc.df, 4)
+```
+
+```{r}
+wisc.data <- wisc.df[,-1]
+```
+
+```{r}
+diagnosis <- wisc.df$diagnosis
+```
+
+> Q1. How many observations are in this dataset?
+
+```{r}
+dim(wisc.data)
+```
+There are 569 observations of 30 variables - not including the id variable for wisc.data. There are 569 observations for the diagnosis vector.
+
+> Q2. How many of the observations have a malignant diagnosis?
+
+```{r}
+sum(grepl("M", diagnosis))
+```
+Out of the 569 diagnoses 212 of them are malignant diagnoses.
+
+> Q3. How many variables/features in the data are suffixed with _mean?
+
+```{r}
+column_names = colnames(wisc.data)
+
+sum(grepl("_mean", column_names))
+```
+Out of the 30 variables, 10 of the variables are suffixed with _mean.
+
+```{r}
+colMeans(wisc.data)
+
+apply(wisc.data,2,sd)
+```
+
+```{r}
+wisc.pr <- prcomp(wisc.data, scale = TRUE)
+summary(wisc.pr)
+```
+
+> Q4. From your results, what proportion of the original variance is captured by the first principal component (PC1)?
+
+PC1: proportion of variance = 0.4427. 44.27% of the original variance is captured by PC1.
+
+> Q5. How many principal components (PCs) are required to describe at least 70% of the original variance in the data?
+
+PC3: cumulative proportion = 0.72636. It takes 3 principal components to describe at least 70% of the original variance in the data.
+
+> Q6. How many principal components (PCs) are required to describe at least 90% of the original variance in the data?
+
+PC7: cumulative proportion = 0.91010. It takes 7 principal components to describe at least 90% of the original variance in the data.
+
+> Q7. What stands out to you about this plot? Is it easy or difficult to understand? Why?
+
+```{r}
+biplot(wisc.pr)
+```
+It is absolutely unreadable. I can't read or distinguish any data points.
+
+```{r}
+library(ggplot2)
+
+ggplot(wisc.pr$x) +
+  aes(x = PC1, y = PC2, col=diagnosis) +
+  geom_point()
+```
+
+> Q8. Generate a similar plot for principal components 1 and 3. What do you notice about these plots?
+
+```{r}
+ggplot(wisc.pr$x) +
+  aes(PC1, PC3, col=diagnosis) +
+  geom_point()
+```
+Both plots are centered at 0,0, however, PC1 vs PC3 has a tighter grouping and less outliers. PC1 is capturing the separation of malignant from benigned samples.
+
+```{r}
+pr.var <- wisc.pr$sdev^2
+head(pr.var)
+```
+
+```{r}
+pve <- pr.var / sum(pr.var)
+
+plot(c(1,pve), xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0, 1), type = "o")
+```
+
+```{r}
+barplot(pve, ylab = "Percent of Variance Explained",
+     names.arg=paste0("PC",1:length(pve)), las=2, axes = FALSE)
+axis(2, at=pve, labels=round(pve,2)*100 )
+```
+
+> Q9. For the first principal component, what is the component of the loading vector (i.e. wisc.pr$rotation[,1]) for the feature concave.points_mean? This tells us how much this original feature contributes to the first PC. Are there any features with larger contributions than this one?
+
+```{r}
+wisc.pr$rotation[,1]
+sort(abs(wisc.pr$rotation[,1]), decreasing = TRUE)
+```
+-0.26085376. Nope, concave.points_mean has the largest contribution.
+
+```{r}
+data.scaled <- scale(wisc.data)
+```
+
+```{r}
+data.dist <- dist(data.scaled)
+```
+
+```{r}
+wisc.hclust <- hclust(data.dist, method = "complete")
+```
+
+> Q10. Using the plot() and abline() functions, what is the height at which the clustering model has 4 clusters?
+
+```{r}
+plot(wisc.hclust)
+abline(h = 19, col="red", lty=2)
+```
+At height = 19, there are 4 clusters.
+
+```{r}
+wisc.hclust.clusters <- cutree(wisc.hclust, k = 4)
+table(wisc.hclust.clusters, diagnosis)
+```
+
+> Q12. Which method gives your favorite results for the same data.dist dataset? Explain your reasoning.
+
+```{r}
+wisc.c <- hclust(data.dist, method = "complete")
+wisc.s <- hclust(data.dist, method = "single")
+wisc.a <- hclust(data.dist, method = "average")
+wisc.w <- hclust(data.dist, method = "ward.D2")
+
+table(cutree(wisc.c, k= 4), diagnosis)
+table(cutree(wisc.s, k= 4), diagnosis)
+table(cutree(wisc.a, k= 4), diagnosis)
+table(cutree(wisc.w, k= 4), diagnosis)
+```
+Ward.D2 gives the cleanest separation between the samples. Each row is obvious which B or M is the majority, unlike the others.
+
+```{r}
+wisc.pr.hclust <- hclust(dist(wisc.pr$x[,1:7]), method = "ward.D2")
+```
+
+```{r}
+grps <- cutree(wisc.pr.hclust, k=2)
+table(grps)
+```
+
+```{r}
+table(grps, diagnosis)
+```
+
+```{r}
+ggplot(wisc.pr$x) +
+  aes(PC1, PC2) +
+  geom_point(col=grps)
+```
+
+```{r}
+wisc.pr.hclust.clusters <- cutree(wisc.pr.hclust, k=2)
+```
+
+```{r}
+table(wisc.pr.hclust.clusters, diagnosis)
+```
+
+```{r}
+table(wisc.hclust.clusters, diagnosis)
+```
+
+> Q13. How well does the newly created hclust model with two clusters separate out the two “M” and “B” diagnoses?
+
+It does a pretty decent job, where out of 216, 188 was identified as malignant. And, out of 353, 329 was identified as benign.
+
+> Q14. How well do the hierarchical clustering models you created in the previous sections (i.e. without first doing PCA) do in terms of separating the diagnoses? Again, use the table() function to compare the output of each model (wisc.hclust.clusters and wisc.pr.hclust.clusters) with the vector containing the actual diagnoses.
+
+It does comparably worse than the 2 cluster model. For cluster 3 it had 343 B and 40 M which is worse than the 2 cluster model. It also needed 4 cluster for clear separation. Doing PCA first shows substantive improvement.
+
+```{r}
+url <- "https://tinyurl.com/new-samples-CSV"
+new <- read.csv(url)
+npc <- predict(wisc.pr, newdata=new)
+npc
+```
+
+```{r}
+plot(wisc.pr$x[,1:2], col=grps)
+points(npc[,1], npc[,2], col="blue", pch=16, cex=3)
+text(npc[,1], npc[,2], c(1,2), col="white")
+```
+
+> Q16. Which of these new patients should we prioritize for follow up based on your results?
+
+Patient 2 should be prioritized first because it is on the cluster that was overwhelmingly malignant is the previous table() answer.

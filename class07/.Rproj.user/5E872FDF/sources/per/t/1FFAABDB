@@ -1,0 +1,27 @@
+{
+    "id": "1FFAABDB",
+    "path": "~/Documents/Projects/bimm143/class07/class07.qmd",
+    "project_path": "class07.qmd",
+    "type": "quarto_markdown",
+    "hash": "398334770",
+    "contents": "",
+    "dirty": false,
+    "created": 1770024443549.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "42,6",
+        "scrollLine": "39"
+    },
+    "folds": "12|6|15|0|\n26|6|31|0|\n33|6|36|0|\n54|6|65|0|\n67|6|69|0|\n71|6|76|0|\n82|6|87|0|\n91|6|93|0|\n",
+    "lastKnownWriteTime": 1770030735,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1770030735382,
+    "read_only": false,
+    "read_only_alternatives": []
+}

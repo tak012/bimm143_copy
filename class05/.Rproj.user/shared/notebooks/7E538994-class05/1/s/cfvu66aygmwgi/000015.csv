@@ -1,0 +1,5 @@
+"0","ggplot(filter(gapminder, year %in% c(1977, 2007))) + "
+"0","  aes(y=lifeExp, x=gdpPercap, col=continent) + "
+"0","  geom_point(alpha=1) +"
+"0","  facet_wrap(~year) +"
+"0","  theme_bw()"

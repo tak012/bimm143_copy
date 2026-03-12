@@ -1,0 +1,254 @@
+---
+title: "Class 13: RNASeq with DESeq2"
+author: "Daniel Kim"
+format: pdf
+---
+
+## Background
+Today we will perform an RNASeq analysis of the effects of a common steroid on airway cells.
+
+In particular, dexamethasone (hereafter just called "dex") on different airway smooth muscle cell lines (ASM cells).
+
+## Data Import
+
+We need two different inputs:
+
+- **countData**: with genes in rows and experiments in columns
+- **colData**: meta data that describes the columns in countData
+
+```{r}
+counts <- read.csv("airway_scaledcounts.csv", row.names=1)
+metadata <-  read.csv("airway_metadata.csv")
+```
+
+```{r}
+head(counts)
+head(metadata)
+```
+
+> Q1. How many genes are in this dataset? 
+
+```{r}
+dim(counts)
+```
+
+38694 genes.
+
+> Q2. How many ‘control’ cell lines do we have? 
+
+```{r}
+table(metadata$dex)
+```
+
+4 control cell lines.
+
+## Differential gene expression
+
+We have 4 replicate drug treated and control (no drug) columns/experiments in our `counts` object.
+
+We want one "mean" value for each gene (rows) in "treated" (drug) and one mean value for each gene in "control" cols.
+
+Step 1. Find all "control" columns in `counts`
+Step 2. Extract these columns to a new object called `control.counts`
+Step 3. Then calculate the mean value for each gene
+
+> Q4. Follow the same procedure for the treated samples (i.e. calculate the mean per gene across drug treated samples and assign to a labeled vector called treated.mean)
+
+Step 1
+
+```{r}
+control.inds <- metadata$dex == "control"
+treated.inds <- metadata$dex == "treated"
+```
+
+Step 2
+
+```{r}
+control.counts <- counts[, control.inds]
+treated.counts <- counts[, treated.inds]
+```
+
+Step 3
+
+```{r}
+control.mean <- rowMeans(control.counts)
+treated.mean <- rowMeans(treated.counts)
+```
+
+```{r}
+meancounts <- data.frame(control.mean, treated.mean)
+```
+
+> Q5 (a). Create a scatter plot showing the mean of the treated samples against the mean of the control samples. Your plot should look something like the following.
+
+```{r}
+plot(meancounts)
+```
+
+> Q5 (b).You could also use the ggplot2 package to make this figure producing the plot below. What geom_?() function would you use for this plot? 
+
+geom_point().
+
+> Q6. Try plotting both axes on a log scale. What is the argument to plot() that allows you to do this? 
+
+```{r}
+plot(meancounts, log="xy")
+```
+
+```{r, message=FALSE}
+library(DESeq2)
+```
+
+DESeq (like many bioconductor packages) want it's inoput data in a very specific way.
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = counts, colData = metadata, design = ~dex)
+```
+
+### RUn the DESeq analysis pipeline
+
+```{r}
+dds <- DESeq(dds)
+```
+
+```{r}
+res <- results(dds)
+```
+
+```{r}
+res
+```
+
+## Volcano Plot
+
+This is a main summary results figure from these kinds of studies. It is a plot of Log2-foldchange vs (Adjusted) P-value.
+
+```{r}
+plot(res$log2FoldChange, res$padj)
+```
+
+Again this y-axis highly needs log transforming
+
+```{r}
+plot(res$log2FoldChange, -log(res$padj))
+abline(v=-2, col="red")
+abline(v=2, col="red")
+abline(h=-log(0.05), col="red", lty=2)
+```
+
+```{r}
+# Setup our custom point color vector 
+mycols <- rep("gray", nrow(res))
+mycols[ abs(res$log2FoldChange) > 2 ]  <- "red" 
+
+inds <- (res$padj < 0.01) & (abs(res$log2FoldChange) > 2 )
+mycols[ inds ] <- "blue"
+
+# Volcano plot with custom colors 
+plot( res$log2FoldChange,  -log(res$padj), 
+ col=mycols, ylab="-Log(P-value)", xlab="Log2(FoldChange)" )
+
+# Cut-off lines
+abline(v=c(-2,2), col="gray", lty=2)
+abline(h=-log(0.1), col="gray", lty=2)
+```
+
+> Q. Make a presentation quality ggplot version of this plot. Include clear axis lables, a clean theme, your custom colors, cut-off lines and a plot title.
+
+```{r}
+library(ggplot2)
+ggplot(res) +
+  aes(log2FoldChange, -log(padj)) +
+  geom_point(color = mycols) +
+  labs(x = "Log2 Fold-change", y= "-log Adjusted P-Value") +
+  theme_bw() +
+  geom_vline(xintercept=c(-2,2)) +
+  geom_hline(yintercept=log(0.05))
+```
+
+## Save our results 
+
+Write a CSV file
+```{r}
+write.csv(res, file="results.csv")
+```
+
+## Add annotation data
+
+We need to add missing annotation data to our main `res` results object. This includes the common gene "symbol."
+
+```{r}
+head(res)
+```
+
+We will use R and bioconductor to do this "ID mapping."
+
+```{r}
+library("AnnotationDbi")
+library("org.Hs.eg.db")
+```
+
+```{r}
+columns(org.Hs.eg.db)
+```
+
+```{r}
+res$symbol <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res), # Our genenames
+                     keytype="ENSEMBL",        # The format of our genenames
+                     column="SYMBOL",          # The new format we want to add
+                     multiVals="first")
+
+res$entrez <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res),
+                     column="ENTREZID",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+
+res$uniprot <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res),
+                     column="UNIPROT",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+
+res$genename <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res),
+                     column="GENENAME",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+```
+
+```{r}
+write.csv(res, file="results_annotated.csv")
+```
+
+```{r}
+library(pathview)
+library(gageData)
+library(gage)
+```
+
+```{r}
+data(kegg.sets.hs)
+head(kegg.sets.hs, 2)
+```
+
+```{r}
+foldchanges <- res$log2FoldChange
+names(foldchanges) <- res$entrez
+```
+
+```{r}
+keggres = gage(foldchanges, gsets=kegg.sets.hs)
+```
+
+```{r}
+pathview(gene.data=foldchanges, pathway.id="hsa05310")
+pathview(gene.data=foldchanges, pathway.id="hsa05332")
+pathview(gene.data=foldchanges, pathway.id="hsa04940")
+```
+
+![](hsa05310.pathview.png)
+![](hsa05332.pathview.png)
+![](hsa04940.pathview.png)
+

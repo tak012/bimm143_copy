@@ -1,0 +1,11 @@
+"0","p <- ˆggplot(cars) +
+  aes(x=speed, y=dist) +
+  geom_point() +
+  geom_smooth(method=""lm"", se=FALSE) +
+  labs(title=""Stopping distance of old cars"",
+       subtitle=""Data from the `cars` object"",
+       x=""Speed (mph)"",
+       y=""Distance (ft)"")
+"
+"2","Error in ˆggplot(cars) : could not find function ""ˆggplot""
+"

@@ -1,0 +1,8 @@
+"0","library(ggplot2)"
+"0","ggplot(res) +"
+"0","  aes(log2FoldChange, -log(padj)) +"
+"0","  geom_point(color = mycols) +"
+"0","  labs(x = ""Log2 Fold-change"", y= ""-log Adjusted P-Value"") +"
+"0","  theme_bw() +"
+"0","  geom_vline(xintercept=c(-2,2)) +"
+"0","  geom_hline(yintercept=log(0.05))"
